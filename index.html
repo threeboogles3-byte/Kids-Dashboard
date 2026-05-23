@@ -356,11 +356,11 @@
     .pending-reward { font-family: 'Fredoka One', cursive; font-size: 1.4rem; color: #4ade80; }
     .pending-photo { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; display: block; cursor: zoom-in; }
     .pending-no-photo { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 18px; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.85rem; }
-    .pending-actions { display: flex; gap: 8px; align-items: center; }
-    .pending-cat-select { flex: 1; padding: 9px 10px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; outline: none; cursor: pointer; }
+    .pending-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: stretch; }
+    .pending-cat-select { flex: 1 1 100%; padding: 10px 12px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; outline: none; cursor: pointer; }
     .pending-cat-select option { background: #1a1a2e; }
-    .btn-approve { background: linear-gradient(135deg,#10b981,#059669); padding: 9px 14px; flex-shrink: 0; font-size: 0.88rem; }
-    .btn-reject  { background: linear-gradient(135deg,#ef4444,#dc2626); padding: 9px 12px; flex-shrink: 0; font-size: 0.88rem; }
+    .btn-approve { background: linear-gradient(135deg,#10b981,#059669); padding: 10px 12px; flex: 1 1 100px; font-size: 0.88rem; }
+    .btn-reject  { background: linear-gradient(135deg,#ef4444,#dc2626); padding: 10px 12px; flex: 1 1 100px; font-size: 0.88rem; }
 
     .challenges-section { margin-bottom: 40px; }
     .challenge-filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -384,6 +384,9 @@
 
     /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; z-index: 500; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    /* Sub-modals that open from within another modal must stack above it */
+    .modal-overlay#pin-overlay,
+    .modal-overlay#emoji-picker-overlay { z-index: 750; }
     .modal-overlay.open { opacity: 1; pointer-events: all; }
     .modal { background: linear-gradient(145deg,#1e1e3f,#16213e); border: 2px solid rgba(255,255,255,0.15); border-radius: 28px; padding: 30px; max-width: 520px; width: 100%; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); max-height: 90vh; overflow-y: auto; }
     .modal-overlay.open .modal { transform: scale(1); }
@@ -420,6 +423,24 @@
     .settings-pane.active { display: block; }
 
     .kid-edit-row { display: grid; grid-template-columns: 60px 1fr 1fr 36px; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 8px; }
+    /* Kid block (kid row + tasks list grouped together) */
+    .kid-edit-block {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 16px;
+      padding: 10px;
+      margin-bottom: 14px;
+    }
+    .kid-edit-block .kid-edit-row { margin-bottom: 0; background: rgba(255,255,255,0.05); }
+    .kid-tasks-block {
+      margin-top: 10px; padding: 10px 8px 4px;
+      border-top: 1px dashed rgba(255,255,255,0.1);
+    }
+    .ktb-header {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 1.2px;
+      color: rgba(255,255,255,0.5); text-transform: uppercase;
+      margin: 0 4px 8px;
+    }
     .kid-edit-row input, .kid-edit-row select { padding: 9px 10px; border-radius: 8px; border: 1.5px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 700; outline: none; width: 100%; }
     .kid-edit-row .emoji-input { text-align: center; font-size: 1.4rem; padding: 4px; }
     .kid-edit-row select option { background: #1a1a2e; }
@@ -610,19 +631,213 @@
     .kid-task-section .add-task-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
     /* Kid-row PIN button */
-    .kid-edit-row.with-pin { grid-template-columns: 50px 1fr 1fr 56px 36px; }
+    .kid-edit-row.with-pin { grid-template-columns: 50px 1fr 1fr 100px 36px; }
     .kid-edit-row .pin-btn {
-      width: 56px; height: 36px; border-radius: 8px; border: none;
-      background: rgba(255,215,0,0.15); color: #FFD700; cursor: pointer;
+      width: 100%; height: 36px; border-radius: 8px; border: none;
+      background: rgba(255,215,0,0.18); color: #FFD700; cursor: pointer;
       font-size: 0.78rem; font-weight: 800; font-family: 'Nunito', sans-serif;
+      transition: all 0.18s;
+      padding: 0 4px;
     }
-    .kid-edit-row .pin-btn:hover { background: rgba(255,215,0,0.35); }
-    .kid-edit-row .pin-btn.set { background: rgba(74,222,128,0.18); color: #4ade80; }
+    .kid-edit-row .pin-btn:hover { background: rgba(255,215,0,0.35); transform: translateY(-1px); }
+    .kid-edit-row .pin-btn.set { background: rgba(74,222,128,0.2); color: #4ade80; }
+    .kid-edit-row .pin-btn.set:hover { background: rgba(74,222,128,0.35); }
+    @media (max-width: 460px) {
+      .kid-edit-row.with-pin { grid-template-columns: 50px 1fr 80px 36px; row-gap: 6px; }
+      .kid-edit-row.with-pin select[data-field="theme"] { grid-column: 1 / -1; }
+    }
 
     /* Read-only balance for kid view (hide controls) */
     .card.view-only .cat-tabs,
     .card.view-only .quick-btns,
     .card.view-only .controls { display: none; }
+
+    /* Task editor with reward column */
+    .task-edit-row { grid-template-columns: 50px 1fr 90px 36px !important; }
+    .task-edit-row input.task-reward { text-align: right; }
+
+    /* Pending claim type badge */
+    .claim-type-badge {
+      font-size: 0.65rem; font-weight: 800; padding: 3px 8px;
+      border-radius: 50px; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .claim-type-badge.task      { background: rgba(74,222,128,0.18); color: #4ade80; }
+    .claim-type-badge.challenge { background: rgba(255,215,0,0.18);  color: #FFD700; }
+
+    /* Task row pending state */
+    .task-row.pending {
+      background: rgba(255,215,0,0.12); border: 1.5px dashed rgba(255,215,0,0.4);
+      cursor: not-allowed;
+    }
+    .task-row.pending .task-checkbox {
+      background: rgba(255,215,0,0.6); border-color: rgba(255,215,0,0.6);
+      color: #1a1a2e;
+    }
+    .task-row.pending .task-text { color: rgba(255,215,0,0.85); }
+    .task-row.pending .task-text::after { content: ' · ⏳ Awaiting approval'; font-size: 0.78rem; opacity: 0.7; font-style: italic; font-weight: 600; }
+    .task-row .task-reward-pill {
+      font-size: 0.78rem; font-weight: 800; padding: 3px 9px;
+      border-radius: 50px; background: rgba(74,222,128,0.15); color: #4ade80;
+      flex-shrink: 0;
+    }
+
+    /* Weekly summary */
+    .summary-totals {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px; margin-bottom: 20px;
+    }
+    .summary-kid-card {
+      padding: 14px; border-radius: 16px;
+      background: rgba(255,255,255,0.05); border: 1.5px solid rgba(255,255,255,0.12);
+      text-align: center;
+    }
+    .summary-kid-card .sk-name {
+      font-family: 'Fredoka One', cursive; font-size: 1rem; color: #fff; margin-bottom: 4px;
+    }
+    .summary-kid-card .sk-amount {
+      font-family: 'Fredoka One', cursive; font-size: 1.8rem; color: #4ade80;
+    }
+    .summary-kid-card .sk-count { font-size: 0.74rem; color: rgba(255,255,255,0.5); font-weight: 700; }
+    .summary-family-total {
+      text-align: center; padding: 18px;
+      background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,165,0,0.08));
+      border: 2px solid rgba(255,215,0,0.4); border-radius: 18px; margin-bottom: 20px;
+    }
+    .summary-family-total .label { font-size: 0.78rem; font-weight: 800; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1.5px; }
+    .summary-family-total .amount {
+      font-family: 'Fredoka One', cursive; font-size: 2.6rem; color: #FFD700;
+      text-shadow: 0 0 20px rgba(255,215,0,0.4);
+    }
+    .summary-list { max-height: 280px; overflow-y: auto; }
+    .summary-entry {
+      display: grid; grid-template-columns: 24px 1fr auto auto;
+      gap: 10px; align-items: center;
+      padding: 9px 12px; border-radius: 10px;
+      background: rgba(255,255,255,0.04); margin-bottom: 6px;
+      font-size: 0.88rem;
+    }
+    .summary-entry .se-kid { color: rgba(255,255,255,0.85); font-weight: 700; }
+    .summary-entry .se-meta { color: rgba(255,255,255,0.5); font-size: 0.78rem; }
+    .summary-entry .se-amt { font-family: 'Fredoka One', cursive; color: #4ade80; }
+    .summary-empty { text-align: center; padding: 30px 20px; color: rgba(255,255,255,0.4); font-style: italic; }
+    .summary-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+    .btn-mark-paid {
+      flex: 1 1 220px; padding: 13px;
+      background: linear-gradient(135deg, #10b981, #059669); color: #fff;
+      font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 0.95rem;
+      border: none; border-radius: 14px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-mark-paid:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(16,185,129,0.4); }
+    .btn-mark-paid:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* ── Earned-but-unpaid bar graph (per kid card) ── */
+    .earned-bars-section {
+      margin-bottom: 14px;
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(74,222,128,0.18);
+      border-radius: 16px;
+      padding: 12px 14px 10px;
+    }
+    .earned-bars-title {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.72rem; color: rgba(255,255,255,0.55);
+      margin-bottom: 10px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase;
+    }
+    .earned-bars-total {
+      color: #4ade80; font-family: 'Fredoka One', cursive; font-size: 1rem;
+      letter-spacing: 0; text-transform: none;
+    }
+    .earned-bars-empty {
+      color: rgba(255,255,255,0.32); text-align: center;
+      padding: 14px 6px 4px; font-size: 0.78rem; font-style: italic;
+    }
+    .earned-bars-chart {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px; align-items: end; height: 96px;
+    }
+    .eb-col { display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; }
+    .eb-bar-wrap {
+      width: 100%; flex: 1; display: flex; align-items: flex-end;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px 6px 0 0; overflow: hidden;
+    }
+    .eb-bar {
+      width: 100%; border-radius: 6px 6px 0 0;
+      min-height: 2px;
+      transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .eb-amount {
+      font-family: 'Fredoka One', cursive; font-size: 0.88rem; color: #fff;
+    }
+    .eb-col.zero .eb-amount { color: rgba(255,255,255,0.32); }
+    .eb-label { font-size: 1rem; line-height: 1; }
+
+    /* ── Emoji picker ── */
+    .emoji-pick-btn {
+      min-width: 50px; height: 40px; padding: 0 8px;
+      border-radius: 10px; border: 1.5px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.3); color: #fff;
+      font-size: 1.5rem; cursor: pointer;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .emoji-pick-btn:hover { border-color: rgba(255,215,0,0.55); background: rgba(255,215,0,0.08); transform: scale(1.04); }
+    .emoji-pick-btn:focus { outline: none; border-color: rgba(255,215,0,0.7); }
+    .emoji-pick-btn.small { min-width: 44px; height: 36px; font-size: 1.25rem; }
+
+    .emoji-picker-modal { max-width: 460px; }
+    .emoji-picker-body {
+      max-height: 55vh; overflow-y: auto;
+      padding-right: 4px; margin: -6px 0 6px;
+    }
+    .emoji-picker-body::-webkit-scrollbar { width: 6px; }
+    .emoji-picker-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .emoji-group { margin-bottom: 14px; }
+    .emoji-group-title {
+      font-size: 0.72rem; color: rgba(255,255,255,0.5);
+      margin-bottom: 6px; font-weight: 800;
+      text-transform: uppercase; letter-spacing: 1.2px;
+    }
+    .emoji-grid {
+      display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
+    }
+    .emoji-cell {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; padding: 7px 0;
+      font-size: 1.45rem; cursor: pointer;
+      text-align: center; transition: all 0.12s;
+      line-height: 1;
+    }
+    .emoji-cell:hover { background: rgba(255,215,0,0.16); border-color: rgba(255,215,0,0.5); transform: scale(1.15); }
+    .emoji-cell.current { background: rgba(255,215,0,0.22); border-color: rgba(255,215,0,0.6); }
+
+    /* Challenge editor */
+    .challenge-edit-row {
+      display: grid; grid-template-columns: 50px 1fr 110px 80px 36px;
+      gap: 8px; align-items: center;
+      padding: 9px 10px; border-radius: 10px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 6px;
+    }
+    .challenge-edit-row input, .challenge-edit-row select {
+      padding: 8px 10px; border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.3); color: #fff;
+      font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700;
+      outline: none; width: 100%;
+    }
+    .challenge-edit-row select option { background: #1a1a2e; }
+    .challenge-edit-row input.reward { text-align: right; }
+    .challenge-edit-row .del-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none;
+      background: rgba(239,68,68,0.15); color: #f87171; cursor: pointer; font-size: 1rem;
+    }
+    .challenge-edit-row .del-btn:hover { background: rgba(239,68,68,0.35); }
+    @media (max-width: 520px) {
+      .challenge-edit-row { grid-template-columns: 48px 1fr 36px; row-gap: 6px; }
+      .challenge-edit-row .ce-meta { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 90px; gap: 6px; }
+    }
   </style>
 </head>
 <body>
@@ -716,8 +931,21 @@
       <button class="pin-key" data-pin="0">0</button>
       <button class="pin-key action" id="pin-back">⌫</button>
     </div>
-    <div style="text-align:center; margin-top:14px" id="pin-clear-row" hidden>
-      <button class="icon-btn" id="pin-clear-btn">Remove PIN</button>
+    <div style="text-align:center; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1)" id="pin-clear-row" hidden>
+      <div style="font-size:0.78rem; color:rgba(255,255,255,0.5); margin-bottom:6px; font-weight:700">Don't want a PIN anymore?</div>
+      <button class="icon-btn" id="pin-clear-btn" style="color:#f87171; border-color:rgba(239,68,68,0.3)">🗑 Remove PIN entirely</button>
+    </div>
+  </div>
+</div>
+
+<!-- Emoji picker -->
+<div class="modal-overlay" id="emoji-picker-overlay">
+  <div class="modal emoji-picker-modal">
+    <h3>Pick an emoji</h3>
+    <div class="modal-subtitle">Tap any emoji to use it</div>
+    <div class="emoji-picker-body" id="emoji-picker-body"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="emoji-picker-cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -760,12 +988,19 @@
     <div class="settings-tabs">
       <button class="settings-tab active" data-pane="kids">👨‍👩‍👧 Kids</button>
       <button class="settings-tab" data-pane="tasks">📋 Tasks</button>
+      <button class="settings-tab" data-pane="challenges">🏆 Challenges</button>
       <button class="settings-tab" data-pane="goal">🎯 Goal</button>
       <button class="settings-tab" data-pane="family">👥 Family</button>
       <button class="settings-tab" data-pane="data">💾 Data</button>
     </div>
 
     <div class="settings-pane active" id="pane-kids">
+      <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;font-weight:600;line-height:1.5;margin-bottom:14px">
+        <strong style="color:#FFD700">🔑 PINs:</strong> Each child can have their own 4-digit PIN that locks their dashboard view. Tap
+        <span style="color:#FFD700">🔒 Set PIN</span> to create one, or
+        <span style="color:#4ade80">🔑 Change PIN</span> to replace an existing one (with an option to remove it).
+        Parents don't need a PIN — your Google login is enough.
+      </div>
       <div id="kid-editor-list"></div>
       <button class="add-kid-btn" id="add-kid-btn">＋ Add a Kid</button>
     </div>
@@ -776,6 +1011,18 @@
         Tasks auto-reset every day at midnight.
       </div>
       <div id="task-editor-list"></div>
+    </div>
+
+    <div class="settings-pane" id="pane-challenges">
+      <div style="color:rgba(255,255,255,0.6);font-size:0.88rem;font-weight:600;line-height:1.5;margin-bottom:14px">
+        Customize the challenges your kids can claim for money. Tap any emoji to change it,
+        edit the name, reward and type, or add your own custom challenges.
+      </div>
+      <div id="challenge-editor-list"></div>
+      <button class="add-kid-btn" id="add-challenge-btn" style="margin-top:8px">＋ Add a Challenge</button>
+      <div style="margin-top:12px">
+        <button class="data-btn" id="restore-challenges-btn">↺ Restore Default Challenges</button>
+      </div>
     </div>
 
     <div class="settings-pane" id="pane-goal">
@@ -823,6 +1070,29 @@
   </div>
 </div>
 
+<!-- Weekly Summary modal -->
+<div class="modal-overlay" id="summary-overlay">
+  <div class="modal">
+    <h3>💰 Money Owed</h3>
+    <div class="modal-subtitle" id="summary-subtitle">Unpaid earnings since last payout</div>
+
+    <div class="summary-family-total">
+      <div class="label">Total Owed</div>
+      <div class="amount" id="summary-family-amount">$0.00</div>
+    </div>
+
+    <div class="summary-totals" id="summary-totals"></div>
+
+    <span class="modal-label">Unpaid Earnings</span>
+    <div class="summary-list" id="summary-list"></div>
+
+    <div class="summary-actions">
+      <button class="btn-cancel" id="summary-close">Close</button>
+      <button class="btn-mark-paid" id="summary-mark-paid">✓ Mark All as Paid</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═════════════ Main app ═════════════ -->
 <div id="app-root">
   <div class="container">
@@ -833,6 +1103,7 @@
       </div>
       <div class="right">
         <span class="who-pill" id="who-pill"></span>
+        <button class="icon-btn" id="open-summary-btn">💰 Owed</button>
         <button class="icon-btn" id="switch-user-btn">🔁 Switch User</button>
         <button class="icon-btn" id="open-settings">⚙ Settings</button>
         <button class="icon-btn" id="signout-btn">Sign out</button>
@@ -916,6 +1187,22 @@ const SAVE_DEBOUNCE_MS = 1200;
 const THEMES = ['purple','green','orange','blue','pink','yellow','teal','red'];
 const COMMON_EMOJI = ['😀','🎮','✈️','⚽','🎨','📚','🚀','🦄','🐱','🐶','🐰','🦊','🐼','🦁','🐢','🦋','⭐','🌈','🍕','🍦','🎵','🏀','🏈','⚾','🎯','🎪','🎬','🤖','👑','🎓'];
 
+// Curated emoji library for the picker, grouped by category.
+const EMOJI_LIBRARY = [
+  { name: 'Smileys', emojis: ['😀','😃','😄','😁','😊','😎','🤩','🥳','😴','🤔','😜','🤓','🥰','😇','🙂','😋','😆','🤪','😝','😡','😭','🤯','🥺','🤗'] },
+  { name: 'People',  emojis: ['👶','🧒','👦','👧','🧑','👨','👩','👴','👵','🧑‍🚀','👨‍🍳','👩‍🍳','🧑‍🎓','👨‍🏫','👩‍🏫','👮','🚒','👷','🥷','🧙','🦸','🧑‍🎤','🤴','👸'] },
+  { name: 'Animals', emojis: ['🐱','🐶','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐝','🦋','🐢','🐙','🦄','🐳','🦒','🦓','🐘','🦓','🐎','🦅','🦉','🐺','🦇','🐝','🐬','🦈'] },
+  { name: 'Sports',  emojis: ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🏸','🥊','🥋','🥅','⛳','⛸','🎿','🏂','🏄','🚴','🏃','🏊','🤸','🤾','🤽','🚶','🤺','🤾','💪'] },
+  { name: 'Activities', emojis: ['🎮','🎲','🧩','♟️','🎯','🎪','🎭','🎨','🎬','📸','🎤','🎧','🎵','🎶','🎸','🎹','🎺','🎻','🥁','📚','📖','✏️','📝','📐','📊','🔬','🔭','🧪','🧮','🪁','🎢','🎡','🎠'] },
+  { name: 'Food',    emojis: ['🍕','🍔','🍟','🌭','🥪','🌮','🥗','🍝','🍜','🍣','🍱','🍙','🥟','🍩','🍪','🍫','🍿','🍦','🍰','🎂','🍎','🍌','🍇','🍓','🥕','🥦','🥑','🥚','🍞','🥞','🧇','🥨','🥐','🌽','🍅'] },
+  { name: 'Travel',  emojis: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🚚','🚛','🚜','🚲','🛴','🛵','🏍️','✈️','🚀','🛸','🚁','⛵','🚤','🛳️','🚆','🚇','🚂','🛬','🛫','🚉','🗺️'] },
+  { name: 'Places',  emojis: ['🏠','🏡','🏢','🏪','🏥','🏫','🏛️','🏰','⛪','🌳','🌲','🌴','🌵','🌷','🌻','🌸','🏖️','🏔️','⛰️','🌋','🏜️','🏞️','🌅','🌄','🌃','🌌'] },
+  { name: 'Chores',  emojis: ['🧹','🗑️','🧺','🛏️','🧼','🚿','🛁','🧽','🪥','👕','👖','🧦','🧴','🧯','💡','🚽','🪑','🧊','📦','🛒','🍽️','🥄','🍴','🧰','🔧','🔨'] },
+  { name: 'Body',    emojis: ['💪','🧠','🫀','🫁','🦷','👁️','👂','👃','🦴','🦵','🦶','✋','👋','🙌','👏','🙏','👍','👎','✌️','🤞','🤘','💅'] },
+  { name: 'Symbols', emojis: ['⭐','🌟','✨','🌈','💫','☀️','🌤️','⛅','☁️','🌧️','⛈️','❄️','💎','🏆','🥇','🥈','🥉','🎖️','🏅','👑','🎁','🎈','🎉','🎊','🎀','🪄','💯','🔥','💥','💨'] },
+  { name: 'Money',   emojis: ['💰','💵','💴','💶','💷','💸','💳','🏦','🪙','💱','🧾','📈','📉','📊','💹','🤑','💼'] },
+];
+
 const DEFAULT_CHALLENGES = [
   { id: 'pushups',    name: '20 Push-ups',                   type: 'physical', reward: 1.00, icon: '💪' },
   { id: 'walk-run',   name: '30-Min Walk or Run',            type: 'physical', reward: 2.00, icon: '🏃' },
@@ -952,6 +1239,7 @@ function defaultState() {
     settings: { goal: 1000 },
     kids: [],
     pending: [],
+    earnings: [],
     challenges: DEFAULT_CHALLENGES.slice(),
   };
 }
@@ -1127,13 +1415,26 @@ function healState(data) {
   if (!data.settings) data.settings = { goal: 1000 };
   if (!data.kids) data.kids = [];
   if (!data.pending) data.pending = [];
+  if (!data.earnings) data.earnings = [];
   if (!data.challenges) data.challenges = DEFAULT_CHALLENGES.slice();
   data.kids.forEach(k => {
     if (!k.data) k.data = freshKidData();
     if (!k.mustDoTasks) k.mustDoTasks = [];
     if (k.pinSalt === undefined) k.pinSalt = null;
     if (k.pinHash === undefined) k.pinHash = null;
+    k.mustDoTasks.forEach(t => { if (typeof t.reward !== 'number') t.reward = 0; });
   });
+  // ── One-time migration ──
+  // Older versions of this app credited the bank balance at APPROVAL time.
+  // The new model only credits on "Mark as Paid". To avoid double-crediting
+  // existing unpaid earnings (whose balance was already added under old rules),
+  // flag them with `preUpgrade: true` so Mark-Paid skips the balance change.
+  if (!data.settings.migratedV2 && data.earnings.length) {
+    data.earnings.forEach(e => {
+      if (!e.paidAt && e.preUpgrade === undefined) e.preUpgrade = true;
+    });
+  }
+  data.settings.migratedV2 = true;
   return data;
 }
 
@@ -1308,6 +1609,10 @@ function applyDailyReset() {
     if (!Array.isArray(k.mustDoTasks)) return;
     k.mustDoTasks.forEach(t => { t.doneToday = false; t.doneAt = null; });
   });
+  // Auto-expire any pending TASK claims from previous days (challenges remain)
+  if (Array.isArray(state.pending)) {
+    state.pending = state.pending.filter(p => !(p.type === 'task' && !p.done));
+  }
   state.settings.lastTasksReset = today;
 }
 function kidTasksAllDone(kid) {
@@ -1317,6 +1622,60 @@ function kidTasksAllDone(kid) {
 function kidTasksProgress(kid) {
   if (!kid || !Array.isArray(kid.mustDoTasks)) return { done: 0, total: 0 };
   return { done: kid.mustDoTasks.filter(t => t.doneToday).length, total: kid.mustDoTasks.length };
+}
+
+// ── Unpaid earnings (approved but not yet "Mark Paid") ──
+function unpaidEarningsForKid(kidId) {
+  return (state.earnings || []).filter(e => e.kidId === kidId && !e.paidAt);
+}
+function unpaidByCategory(kidId) {
+  const out = { spending: 0, savings: 0, investing: 0 };
+  unpaidEarningsForKid(kidId).forEach(e => {
+    const c = (e.cat && out[e.cat] !== undefined) ? e.cat : 'spending';
+    out[c] = Math.round((out[c] + (e.reward || 0)) * 100) / 100;
+  });
+  return out;
+}
+function kidUnpaidTotal(kidId) {
+  const o = unpaidByCategory(kidId);
+  return Math.round((o.spending + o.savings + o.investing) * 100) / 100;
+}
+
+function buildEarnedBarsHtml(kid) {
+  const owed = unpaidByCategory(kid.id);
+  const total = Math.round((owed.spending + owed.savings + owed.investing) * 100) / 100;
+  if (total === 0) {
+    return `
+      <div class="earned-bars-title">
+        <span>📊 Earned · Unpaid</span>
+        <span class="earned-bars-total">$0.00</span>
+      </div>
+      <div class="earned-bars-empty">No unpaid earnings yet.</div>
+    `;
+  }
+  const max = Math.max(owed.spending, owed.savings, owed.investing, 0.01);
+  const col = (cat, label, cls) => {
+    const v = owed[cat];
+    const h = v > 0 ? Math.max(8, (v / max) * 100) : 0;
+    return `
+      <div class="eb-col ${v === 0 ? 'zero' : ''}">
+        <div class="eb-bar-wrap"><div class="eb-bar ${cls}" style="height:${h}%"></div></div>
+        <div class="eb-amount">${fmt(v)}</div>
+        <div class="eb-label">${label}</div>
+      </div>
+    `;
+  };
+  return `
+    <div class="earned-bars-title">
+      <span>📊 Earned · Unpaid</span>
+      <span class="earned-bars-total">${fmt(total)}</span>
+    </div>
+    <div class="earned-bars-chart">
+      ${col('spending',  '💳', 'bar-spending')}
+      ${col('savings',   '🐷', 'bar-savings')}
+      ${col('investing', '📈', 'bar-investing')}
+    </div>
+  `;
 }
 
 function getRank(bal) {
@@ -1429,6 +1788,9 @@ function buildCard(kid) {
       </div>
       <div class="progress-bar"><div class="prog-fill" id="prog-${kid.id}" style="width:${pct}%"></div></div>
     </div>
+    <div class="earned-bars-section" id="earned-${kid.id}">
+      ${buildEarnedBarsHtml(kid)}
+    </div>
     <div class="cat-breakdown">
       <div class="cat-row">
         <div class="cat-row-icon">💳</div>
@@ -1517,6 +1879,8 @@ function updateCard(id) {
   document.getElementById(`biv-${id}`).style.width = Math.min(100, (s.investing/ goal) * 100) + '%';
   document.getElementById(`log-${id}`).innerHTML = renderLog(s.log);
   document.getElementById(`logtgl-${id}`).textContent = `📋 History (${s.log.length})`;
+  const earnedEl = document.getElementById(`earned-${id}`);
+  if (earnedEl) earnedEl.innerHTML = buildEarnedBarsHtml(kid);
   updateGrandTotal();
 }
 
@@ -1616,21 +1980,45 @@ function filterChallenges(type, btn) {
 }
 
 // Claim modal
-function openModal(cid) {
+// Modal state for both task and challenge claims
+let mClaimMode = null;     // 'challenge' | 'task'
+let mTaskId    = null;
+
+function openModal(arg) {
   if (!state.kids.length) { showToast('⚠️ Add a kid first in ⚙ Settings'); return; }
-  // Block kid from claiming if their tasks aren't done
-  if (isKidMode()) {
-    const kid = kidById(currentKidId());
-    if (kid && kid.mustDoTasks.length && !kidTasksAllDone(kid)) {
-      showToast('🔒 Finish your daily tasks first!'); return;
+  // Normalize: legacy callers pass a challenge id string; new callers pass a config object.
+  const cfg = (typeof arg === 'string') ? { type: 'challenge', challengeId: arg } : (arg || {});
+  mClaimMode = cfg.type;
+  mChallengeId = cfg.challengeId || null;
+  mTaskId      = cfg.taskId || null;
+  mPhoto = null;
+
+  if (mClaimMode === 'challenge') {
+    // Block kid from claiming challenges if their tasks aren't all done
+    if (isKidMode()) {
+      const kid = kidById(currentKidId());
+      if (kid && kid.mustDoTasks.length && !kidTasksAllDone(kid)) {
+        showToast('🔒 Finish your daily tasks first!'); return;
+      }
     }
+    mKidId = isKidMode() ? currentKidId() : null;
+    const c = state.challenges.find(x => x.id === mChallengeId);
+    if (!c) return;
+    document.getElementById('modal-overlay').querySelector('h3').textContent = '🏅 Claim Challenge';
+    document.getElementById('modal-cname').textContent = c.icon + ' ' + c.name;
+    document.getElementById('modal-creward').textContent = '+' + fmt(c.reward);
+  } else if (mClaimMode === 'task') {
+    // Tasks lock the kid to whoever owns the task
+    mKidId = cfg.kidId;
+    const kid = kidById(mKidId); if (!kid) return;
+    const t = kid.mustDoTasks.find(x => x.id === mTaskId); if (!t) return;
+    document.getElementById('modal-overlay').querySelector('h3').textContent = '📋 Submit Task';
+    document.getElementById('modal-cname').textContent = (t.icon || '📌') + ' ' + (t.name || '(unnamed task)');
+    document.getElementById('modal-creward').textContent = t.reward > 0 ? '+' + fmt(t.reward) : 'no reward';
+  } else {
+    return;
   }
-  mChallengeId = cid; mPhoto = null;
-  // In kid mode, lock the claim to themselves
-  mKidId = isKidMode() ? currentKidId() : null;
-  const c = state.challenges.find(x => x.id === cid);
-  document.getElementById('modal-cname').textContent = c.icon + ' ' + c.name;
-  document.getElementById('modal-creward').textContent = '+' + fmt(c.reward);
+
   const choosable = visibleKids();
   document.getElementById('kid-selector').innerHTML = choosable.map(k =>
     `<button class="kid-select-btn ${k.id === mKidId ? 'selected' : ''}" id="ks-${k.id}" onclick="selectKid('${k.id}')">
@@ -1645,6 +2033,7 @@ function openModal(cid) {
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
   mChallengeId = mKidId = mPhoto = null;
+  mClaimMode = null; mTaskId = null;
 }
 function selectKid(id) {
   mKidId = id;
@@ -1661,16 +2050,38 @@ function handlePhoto(e) {
 }
 function submitClaim() {
   if (!mKidId) { showToast('⚠️ Pick a kid first!'); return; }
-  const c = state.challenges.find(x => x.id === mChallengeId);
-  state.pending.push({
-    id: Date.now().toString(),
-    kidId: mKidId, challengeId: mChallengeId,
-    name: c.name, icon: c.icon, reward: c.reward,
-    photo: mPhoto, at: nowStr(),
-    submittedBy: userEmail, done: false,
-  });
-  scheduleSave(); renderPending(); closeModal();
-  showToast(`📸 ${kidById(mKidId).name}'s claim submitted!`);
+  const kid = kidById(mKidId); if (!kid) return;
+
+  if (mClaimMode === 'task') {
+    const t = kid.mustDoTasks.find(x => x.id === mTaskId);
+    if (!t) { showToast('⚠️ Task not found'); return; }
+    state.pending.push({
+      id: Date.now().toString(),
+      type: 'task',
+      kidId: mKidId, taskId: t.id,
+      name: t.name || '(unnamed task)', icon: t.icon || '📌',
+      reward: t.reward || 0,
+      photo: mPhoto, at: nowStr(),
+      submittedBy: userEmail, done: false,
+    });
+    // Mark as "done for gating" so they can proceed to challenges even before parent approves
+    t.doneToday = true;
+    t.doneAt = Date.now();
+  } else {
+    const c = state.challenges.find(x => x.id === mChallengeId);
+    if (!c) return;
+    state.pending.push({
+      id: Date.now().toString(),
+      type: 'challenge',
+      kidId: mKidId, challengeId: mChallengeId,
+      name: c.name, icon: c.icon, reward: c.reward,
+      photo: mPhoto, at: nowStr(),
+      submittedBy: userEmail, done: false,
+    });
+  }
+  scheduleSave();
+  renderPending(); renderTasksSection(); buildChallenges(); closeModal();
+  showToast(`📸 ${kid.name}'s ${mClaimMode === 'task' ? 'task' : 'challenge'} submitted!`);
 }
 
 document.getElementById('modal-overlay').addEventListener('click', e => {
@@ -1700,6 +2111,10 @@ function renderPending() {
   }
   document.getElementById('pending-list').innerHTML = list.map(p => {
     const kid = kidById(p.kidId);
+    const isTask = p.type === 'task';
+    const typeLabel = isTask ? '📋 Task' : '🏅 Challenge';
+    const typeCls   = isTask ? 'task' : 'challenge';
+    const hasReward = (p.reward || 0) > 0;
     return `
       <div class="pending-card">
         <div class="pending-top">
@@ -1707,22 +2122,27 @@ function renderPending() {
             <span style="font-size:1.4rem">${kid ? kid.emoji : '❓'}</span>
             <span class="pending-kid-name">${kid ? kid.name : 'Unknown'}</span>
           </div>
-          <span class="pending-time">${p.at}</span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="claim-type-badge ${typeCls}">${typeLabel}</span>
+            <span class="pending-time">${p.at}</span>
+          </div>
         </div>
         <div>
           <div class="pending-challenge">${p.icon} ${p.name}</div>
-          <div class="pending-reward">+${fmt(p.reward)}</div>
+          ${hasReward ? `<div class="pending-reward">+${fmt(p.reward)}</div>` : '<div class="pending-reward" style="color:rgba(255,255,255,0.4);font-size:1rem">no reward</div>'}
         </div>
         ${p.photo
           ? `<img class="pending-photo" src="${p.photo}" alt="Proof" onclick="openLightbox('${p.id}')" />`
           : `<div class="pending-no-photo">📷 No photo provided</div>`}
         ${isParentMode() ? `
           <div class="pending-actions">
-            <select class="pending-cat-select" id="pcat-${p.id}">
-              <option value="spending">💳 Spending</option>
-              <option value="savings">🐷 Savings</option>
-              <option value="investing">📈 Investing</option>
-            </select>
+            ${hasReward ? `
+              <select class="pending-cat-select" id="pcat-${p.id}">
+                <option value="spending">💳 Spending</option>
+                <option value="savings">🐷 Savings</option>
+                <option value="investing">📈 Investing</option>
+              </select>
+            ` : ''}
             <button class="btn btn-approve" onclick="approvePending('${p.id}')">✅ Approve</button>
             <button class="btn btn-reject"  onclick="rejectPending('${p.id}')">❌ Reject</button>
           </div>
@@ -1739,23 +2159,51 @@ function renderPending() {
 function approvePending(pid) {
   const p = state.pending.find(x => x.id === pid); if (!p) return;
   const kid = kidById(p.kidId); if (!kid) { rejectPending(pid); return; }
-  const cat = document.getElementById(`pcat-${pid}`).value;
-  const s = kid.data;
-  const goal = state.settings.goal;
-  const wasUnder = kidTotal(kid.id) < goal;
-  s[cat] = Math.round((s[cat] + p.reward) * 100) / 100;
-  s.log.push({ desc: `✅ Challenge: ${p.name}`, amount: p.reward, cat, time: nowStr() });
+  const isTask = p.type === 'task';
+  const hasReward = (p.reward || 0) > 0;
+  // Determine category — only matters when there's a reward to record
+  let cat = null;
+  if (hasReward) {
+    const sel = document.getElementById(`pcat-${pid}`);
+    cat = sel ? sel.value : 'spending';
+  }
+
+  // NEW MODEL: approval records the earning in the "owed" pile, but does NOT
+  // credit the kid's bank balance. The balance only moves when the parent
+  // clicks "Mark All as Paid" in the Owed summary.
+  if (hasReward) {
+    state.earnings.push({
+      id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2,4),
+      kidId: kid.id, type: isTask ? 'task' : 'challenge',
+      name: p.name, icon: p.icon, reward: p.reward, cat,
+      approvedAt: Date.now(), approvedBy: userEmail, paidAt: null,
+    });
+  }
+
+  // For task claims: ensure the task is marked done for today
+  if (isTask) {
+    const t = kid.mustDoTasks.find(x => x.id === p.taskId);
+    if (t) { t.doneToday = true; t.doneAt = Date.now(); }
+  }
+
   p.done = true;
-  scheduleSave(); updateCard(kid.id); renderPending();
-  showToast(`🎉 ${kid.name} earned +${fmt(p.reward)} for ${p.name}!`);
-  if (wasUnder && kidTotal(kid.id) >= goal) setTimeout(() => { showToast(`🏆 ${kid.name} hit ${fmt(goal)}!!`); launchConfetti(); }, 400);
+  scheduleSave();
+  updateCard(kid.id); renderPending(); renderTasksSection(); buildChallenges();
+  showToast(hasReward
+    ? `✅ Approved · +${fmt(p.reward)} added to ${kid.name}'s unpaid tally`
+    : `✅ ${kid.name}'s ${isTask ? 'task' : 'challenge'} approved`);
 }
 
 function rejectPending(pid) {
   const p = state.pending.find(x => x.id === pid); if (!p) return;
-  p.done = true;
-  scheduleSave(); renderPending();
   const kid = kidById(p.kidId);
+  // For a rejected task claim, un-mark doneToday so the kid has to re-do it
+  if (p.type === 'task' && kid) {
+    const t = kid.mustDoTasks.find(x => x.id === p.taskId);
+    if (t) { t.doneToday = false; t.doneAt = null; }
+  }
+  p.done = true;
+  scheduleSave(); renderPending(); renderTasksSection(); buildChallenges();
   showToast(`❌ ${kid ? kid.name + "'s" : 'That'} claim was rejected`);
 }
 
@@ -1790,17 +2238,20 @@ function updateWhoPill() {
 }
 
 function updateRoleBasedUi() {
-  // Hide settings + sign-out chrome that kids shouldn't see; show "Switch User"
+  // Hide parent-only chrome from kids
   const settingsBtn = document.getElementById('open-settings');
-  const signoutBtn = document.getElementById('signout-btn');
-  const switchBtn  = document.getElementById('switch-user-btn');
+  const signoutBtn  = document.getElementById('signout-btn');
+  const switchBtn   = document.getElementById('switch-user-btn');
+  const summaryBtn  = document.getElementById('open-summary-btn');
   if (isKidMode()) {
     if (settingsBtn) settingsBtn.style.display = 'none';
     if (signoutBtn)  signoutBtn.style.display = 'none';
+    if (summaryBtn)  summaryBtn.style.display = 'none';
     if (switchBtn)   switchBtn.style.display = '';
   } else {
     if (settingsBtn) settingsBtn.style.display = '';
     if (signoutBtn)  signoutBtn.style.display = '';
+    if (summaryBtn)  summaryBtn.style.display = '';
     if (switchBtn)   switchBtn.style.display = '';
   }
 }
@@ -1843,30 +2294,36 @@ function renderTasksSection() {
         </div>
         ${k.mustDoTasks.length === 0
           ? '<div class="tasks-empty">No tasks set yet.</div>'
-          : k.mustDoTasks.map(t => `
-            <div class="task-row ${t.doneToday ? 'checked' : ''}" onclick="toggleTask('${k.id}','${t.id}')">
-              <div class="task-checkbox">✓</div>
-              <div class="task-icon">${t.icon || '📌'}</div>
-              <div class="task-text">${t.name}</div>
-            </div>
-          `).join('')}
+          : k.mustDoTasks.map(t => {
+            const pendingClaim = state.pending.find(p => !p.done && p.type === 'task' && p.kidId === k.id && p.taskId === t.id);
+            const cls = pendingClaim ? 'pending' : (t.doneToday ? 'checked' : '');
+            const click = pendingClaim ? '' : `onclick="onTaskTap('${k.id}','${t.id}')"`;
+            const rewardPill = (t.reward && t.reward > 0) ? `<div class="task-reward-pill">+${fmt(t.reward)}</div>` : '';
+            return `
+              <div class="task-row ${cls}" ${click}>
+                <div class="task-checkbox">✓</div>
+                <div class="task-icon">${t.icon || '📌'}</div>
+                <div class="task-text">${t.name || '(no name)'}</div>
+                ${rewardPill}
+              </div>
+            `;
+          }).join('')}
       </div>
     `;
   }).join('');
 }
 
-function toggleTask(kidId, taskId) {
+function onTaskTap(kidId, taskId) {
   const k = kidById(kidId); if (!k) return;
-  // Kids can only toggle their own tasks. Parents can toggle any.
+  // In kid mode, kids can only act on their own tasks
   if (isKidMode() && currentKidId() !== kidId) return;
   const t = k.mustDoTasks.find(x => x.id === taskId); if (!t) return;
-  t.doneToday = !t.doneToday;
-  t.doneAt = t.doneToday ? Date.now() : null;
-  scheduleSave();
-  renderTasksSection();
-  buildChallenges(); // re-evaluates lock
+  // Already pending → ignore
+  if (state.pending.find(p => !p.done && p.type === 'task' && p.kidId === k.id && p.taskId === t.id)) return;
+  // Open claim modal in TASK mode
+  openModal({ type: 'task', kidId: k.id, taskId: t.id });
 }
-window.toggleTask = toggleTask;
+window.onTaskTap = onTaskTap;
 
 // ═════════════════════════════════════════════════════════════════════════
 //  SETTINGS  —  open / close / tabs
@@ -1875,6 +2332,7 @@ function openSettings() {
   if (!isParentMode()) { showToast('🔒 Only the parent can open settings'); return; }
   renderKidEditor();
   renderTaskEditor();
+  renderChallengeEditor();
   document.getElementById('goal-input').value = state.settings.goal;
   renderMembers();
   document.getElementById('settings-overlay').classList.add('open');
@@ -1896,10 +2354,97 @@ document.querySelectorAll('.settings-tab').forEach(t => {
     document.getElementById('pane-' + t.dataset.pane).classList.add('active');
     if (t.dataset.pane === 'family') renderMembers();
     if (t.dataset.pane === 'tasks') renderTaskEditor();
+    if (t.dataset.pane === 'challenges') renderChallengeEditor();
   });
 });
 
-// Kids editor
+// ─────────────────────────────────────────────────────────────────────────
+//  KIDS EDITOR  +  TASKS-PER-KID  (inline under each kid in the Kids tab)
+// ─────────────────────────────────────────────────────────────────────────
+function kidTasksHtml(k) {
+  const tasks = Array.isArray(k.mustDoTasks) ? k.mustDoTasks : [];
+  const rows = tasks.length === 0
+    ? '<div style="color:rgba(255,255,255,0.35);font-size:0.82rem;font-style:italic;padding:6px 4px">No mandatory tasks yet.</div>'
+    : tasks.map(t => `
+        <div class="task-edit-row" data-task-id="${t.id}">
+          <button class="emoji-pick-btn small" data-task-field="icon" title="Pick emoji">${t.icon || '📌'}</button>
+          <input data-task-field="name" value="${(t.name || '').replace(/"/g, '&quot;')}" placeholder="e.g. Brush teeth" />
+          <input class="task-reward" type="number" min="0" step="0.25" data-task-field="reward" value="${t.reward || 0}" placeholder="$0" title="Reward ($)" />
+          <button class="del-btn" data-action="del-task" title="Remove task">🗑</button>
+        </div>
+      `).join('');
+  return `
+    <div class="kid-tasks-block">
+      <div class="ktb-header">📋 Mandatory Daily Tasks</div>
+      <div class="task-edit-list">${rows}</div>
+      <button class="add-task-btn" data-action="add-task" type="button">＋ Add a task</button>
+    </div>
+  `;
+}
+
+function wireKidTaskHandlers(block, kidId) {
+  // Per-task input/emoji/delete
+  block.querySelectorAll('.task-edit-row').forEach(row => {
+    const taskId = row.dataset.taskId;
+    row.querySelectorAll('input').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const k = kidById(kidId); if (!k) return;
+        if (!Array.isArray(k.mustDoTasks)) k.mustDoTasks = [];
+        const t = k.mustDoTasks.find(x => x.id === taskId); if (!t) return;
+        const f = inp.dataset.taskField;
+        if (f === 'reward') {
+          const v = parseFloat(inp.value);
+          t.reward = (isNaN(v) || v < 0) ? 0 : Math.round(v * 100) / 100;
+        } else {
+          t[f] = inp.value;
+        }
+        scheduleSave();
+      });
+    });
+    const emojiBtn = row.querySelector('.emoji-pick-btn');
+    if (emojiBtn) emojiBtn.addEventListener('click', () => {
+      const k = kidById(kidId); if (!k) return;
+      if (!Array.isArray(k.mustDoTasks)) k.mustDoTasks = [];
+      const t = k.mustDoTasks.find(x => x.id === taskId); if (!t) return;
+      openEmojiPicker(t.icon, picked => {
+        t.icon = picked;
+        scheduleSave(); renderKidEditor();
+      });
+    });
+    const delBtn = row.querySelector('[data-action="del-task"]');
+    if (delBtn) delBtn.addEventListener('click', () => {
+      const k = kidById(kidId); if (!k) return;
+      if (!Array.isArray(k.mustDoTasks)) { k.mustDoTasks = []; return; }
+      k.mustDoTasks = k.mustDoTasks.filter(x => x.id !== taskId);
+      scheduleSave(); renderKidEditor();
+    });
+  });
+  // Add task
+  const addBtn = block.querySelector('[data-action="add-task"]');
+  if (addBtn) addBtn.addEventListener('click', () => {
+    const k = kidById(kidId); if (!k) return;
+    if (!Array.isArray(k.mustDoTasks)) k.mustDoTasks = [];
+    const newTask = {
+      id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2,4),
+      name: '', icon: '📌', reward: 0, doneToday: false, doneAt: null
+    };
+    k.mustDoTasks.push(newTask);
+    scheduleSave();
+    renderKidEditor();
+    // Focus the newly created task's name input
+    setTimeout(() => {
+      const newRow = document.querySelector(`.kid-edit-block[data-id="${kidId}"] .task-edit-row[data-task-id="${newTask.id}"]`);
+      if (newRow) {
+        const nameInp = newRow.querySelector('input[data-task-field="name"]');
+        if (nameInp) {
+          nameInp.focus();
+          newRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }, 30);
+  });
+}
+
 function renderKidEditor() {
   const list = document.getElementById('kid-editor-list');
   if (!state.kids.length) {
@@ -1907,19 +2452,24 @@ function renderKidEditor() {
     return;
   }
   list.innerHTML = state.kids.map(k => `
-    <div class="kid-edit-row with-pin" data-id="${k.id}">
-      <input class="emoji-input" data-field="emoji" value="${k.emoji}" maxlength="2" />
-      <input data-field="name" value="${k.name}" placeholder="Name" />
-      <select data-field="theme">
-        ${THEMES.map(t => `<option value="${t}" ${t===k.theme?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
-      </select>
-      <button class="pin-btn ${kidHasPin(k) ? 'set' : ''}" title="Set or change PIN">${kidHasPin(k) ? 'PIN ✓' : 'Set PIN'}</button>
-      <button class="del-btn" title="Remove">🗑</button>
+    <div class="kid-edit-block" data-id="${k.id}">
+      <div class="kid-edit-row with-pin">
+        <button class="emoji-pick-btn small" data-field="emoji" title="Pick avatar">${k.emoji}</button>
+        <input data-field="name" value="${(k.name || '').replace(/"/g, '&quot;')}" placeholder="Name" />
+        <select data-field="theme">
+          ${THEMES.map(t => `<option value="${t}" ${t===k.theme?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+        </select>
+        <button class="pin-btn ${kidHasPin(k) ? 'set' : ''}" data-action="pin" title="${kidHasPin(k) ? 'Change or remove the PIN' : 'Set a 4-digit PIN'}">${kidHasPin(k) ? '🔑 Change PIN' : '🔒 Set PIN'}</button>
+        <button class="del-btn" data-action="del-kid" title="Remove">🗑</button>
+      </div>
+      ${kidTasksHtml(k)}
     </div>
   `).join('');
 
-  list.querySelectorAll('.kid-edit-row').forEach(row => {
-    const id = row.dataset.id;
+  list.querySelectorAll('.kid-edit-block').forEach(block => {
+    const id = block.dataset.id;
+    // Kid row inputs
+    const row = block.querySelector('.kid-edit-row');
     row.querySelectorAll('input, select').forEach(inp => {
       inp.addEventListener('input', () => {
         const kid = kidById(id); if (!kid) return;
@@ -1927,68 +2477,163 @@ function renderKidEditor() {
         scheduleSave();
       });
     });
-    row.querySelector('.pin-btn').addEventListener('click', () => openPinSetup(id));
-    row.querySelector('.del-btn').addEventListener('click', () => {
+    // Avatar emoji picker
+    const emojiBtn = row.querySelector('.emoji-pick-btn');
+    if (emojiBtn) emojiBtn.addEventListener('click', () => {
+      const kid = kidById(id); if (!kid) return;
+      openEmojiPicker(kid.emoji, picked => {
+        kid.emoji = picked;
+        scheduleSave(); renderKidEditor();
+      });
+    });
+    // PIN
+    const pinBtn = row.querySelector('[data-action="pin"]');
+    if (pinBtn) pinBtn.addEventListener('click', () => openPinSetup(id));
+    // Delete kid
+    const delKidBtn = row.querySelector('[data-action="del-kid"]');
+    if (delKidBtn) delKidBtn.addEventListener('click', () => {
       const kid = kidById(id); if (!kid) return;
       if (!confirm(`Remove ${kid.name}? Their balance and history will be deleted. This cannot be undone.`)) return;
       state.kids = state.kids.filter(k => k.id !== id);
       state.pending = state.pending.filter(p => p.kidId !== id);
       scheduleSave(); renderKidEditor();
     });
+    // Task handlers (inline)
+    wireKidTaskHandlers(block, id);
   });
 }
 
-// ── Task editor (Settings → Tasks tab) ──
+// Tasks tab uses the same per-kid blocks for consistency
 function renderTaskEditor() {
   const root = document.getElementById('task-editor-list');
+  if (!root) return;
   if (!state.kids.length) {
     root.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;font-size:0.9rem">Add a kid in the Kids tab first.</div>';
     return;
   }
   root.innerHTML = state.kids.map(k => `
-    <div class="kid-task-section" data-kid-id="${k.id}">
+    <div class="kid-task-section kid-edit-block" data-id="${k.id}">
       <h4>${k.emoji} ${k.name}</h4>
-      <div class="task-edit-list">
-        ${(k.mustDoTasks || []).map(t => `
-          <div class="task-edit-row" data-task-id="${t.id}">
-            <input class="emoji-input" data-task-field="icon" value="${t.icon || ''}" maxlength="2" placeholder="📌" />
-            <input data-task-field="name" value="${t.name || ''}" placeholder="e.g. Brush teeth" />
-            <button class="del-btn" title="Remove task">🗑</button>
-          </div>
+      ${kidTasksHtml(k)}
+    </div>
+  `).join('');
+  root.querySelectorAll('.kid-edit-block').forEach(block => {
+    wireKidTaskHandlers(block, block.dataset.id);
+  });
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+//  EMOJI PICKER  —  shared modal used by kids/tasks/challenges
+// ═════════════════════════════════════════════════════════════════════════
+let _emojiPickerCb = null;
+let _emojiPickerCurrent = null;
+
+function openEmojiPicker(currentEmoji, onPick) {
+  _emojiPickerCb = onPick;
+  _emojiPickerCurrent = currentEmoji || '';
+  const body = document.getElementById('emoji-picker-body');
+  body.innerHTML = EMOJI_LIBRARY.map(grp => `
+    <div class="emoji-group">
+      <div class="emoji-group-title">${grp.name}</div>
+      <div class="emoji-grid">
+        ${grp.emojis.map(e => `
+          <button class="emoji-cell ${e === _emojiPickerCurrent ? 'current' : ''}" data-emoji="${e}">${e}</button>
         `).join('')}
       </div>
-      <button class="add-task-btn">＋ Add a task</button>
+    </div>
+  `).join('');
+  body.querySelectorAll('.emoji-cell').forEach(b => {
+    b.addEventListener('click', () => pickEmoji(b.dataset.emoji));
+  });
+  document.getElementById('emoji-picker-overlay').classList.add('open');
+}
+
+function pickEmoji(emoji) {
+  const cb = _emojiPickerCb;
+  closeEmojiPicker();
+  if (cb) cb(emoji);
+}
+
+function closeEmojiPicker() {
+  document.getElementById('emoji-picker-overlay').classList.remove('open');
+  _emojiPickerCb = null;
+  _emojiPickerCurrent = null;
+}
+
+document.getElementById('emoji-picker-cancel').addEventListener('click', closeEmojiPicker);
+document.getElementById('emoji-picker-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('emoji-picker-overlay')) closeEmojiPicker();
+});
+
+// ═════════════════════════════════════════════════════════════════════════
+//  CHALLENGE EDITOR  (Settings → 🏆 Challenges)
+// ═════════════════════════════════════════════════════════════════════════
+function renderChallengeEditor() {
+  const root = document.getElementById('challenge-editor-list');
+  if (!root) return;
+  if (!state.challenges.length) {
+    root.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.4);padding:20px;font-size:0.9rem">No challenges yet. Click "+ Add a Challenge" below.</div>';
+    return;
+  }
+  root.innerHTML = state.challenges.map(c => `
+    <div class="challenge-edit-row" data-id="${c.id}">
+      <button class="emoji-pick-btn small" data-field="icon" title="Pick emoji">${c.icon || '🏆'}</button>
+      <input data-field="name" value="${c.name || ''}" placeholder="Challenge name" />
+      <select data-field="type">
+        <option value="physical" ${c.type === 'physical' ? 'selected' : ''}>💪 Physical</option>
+        <option value="mental"   ${c.type === 'mental'   ? 'selected' : ''}>🧠 Mental</option>
+      </select>
+      <input class="reward" type="number" min="0" step="0.25" data-field="reward" value="${c.reward || 0}" title="Reward ($)" />
+      <button class="del-btn" title="Remove">🗑</button>
     </div>
   `).join('');
 
-  root.querySelectorAll('.kid-task-section').forEach(sec => {
-    const kidId = sec.dataset.kidId;
-    sec.querySelectorAll('.task-edit-row').forEach(row => {
-      const taskId = row.dataset.taskId;
-      row.querySelectorAll('input').forEach(inp => {
-        inp.addEventListener('input', () => {
-          const k = kidById(kidId); if (!k) return;
-          const t = k.mustDoTasks.find(x => x.id === taskId); if (!t) return;
-          t[inp.dataset.taskField] = inp.value;
-          scheduleSave();
-        });
-      });
-      row.querySelector('.del-btn').addEventListener('click', () => {
-        const k = kidById(kidId); if (!k) return;
-        k.mustDoTasks = k.mustDoTasks.filter(x => x.id !== taskId);
-        scheduleSave(); renderTaskEditor();
+  root.querySelectorAll('.challenge-edit-row').forEach(row => {
+    const id = row.dataset.id;
+    row.querySelectorAll('input, select').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const c = state.challenges.find(x => x.id === id); if (!c) return;
+        const f = inp.dataset.field;
+        if (f === 'reward') {
+          const v = parseFloat(inp.value);
+          c.reward = (isNaN(v) || v < 0) ? 0 : Math.round(v * 100) / 100;
+        } else {
+          c[f] = inp.value;
+        }
+        scheduleSave();
       });
     });
-    sec.querySelector('.add-task-btn').addEventListener('click', () => {
-      const k = kidById(kidId); if (!k) return;
-      k.mustDoTasks.push({
-        id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2,4),
-        name: '', icon: '📌', doneToday: false, doneAt: null
+    // Emoji picker
+    const emojiBtn = row.querySelector('.emoji-pick-btn');
+    if (emojiBtn) emojiBtn.addEventListener('click', () => {
+      const c = state.challenges.find(x => x.id === id); if (!c) return;
+      openEmojiPicker(c.icon, picked => {
+        c.icon = picked;
+        scheduleSave(); renderChallengeEditor();
       });
-      scheduleSave(); renderTaskEditor();
+    });
+    row.querySelector('.del-btn').addEventListener('click', () => {
+      const c = state.challenges.find(x => x.id === id); if (!c) return;
+      if (!confirm(`Remove the "${c.name || 'unnamed'}" challenge? Existing pending claims remain unaffected.`)) return;
+      state.challenges = state.challenges.filter(x => x.id !== id);
+      scheduleSave(); renderChallengeEditor();
     });
   });
 }
+
+document.getElementById('add-challenge-btn').addEventListener('click', () => {
+  state.challenges.push({
+    id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,4),
+    name: '', icon: '🏆', type: 'physical', reward: 1
+  });
+  scheduleSave(); renderChallengeEditor();
+});
+
+document.getElementById('restore-challenges-btn').addEventListener('click', () => {
+  if (!confirm('Restore the original challenge list? Any custom challenges you added will be removed.')) return;
+  state.challenges = DEFAULT_CHALLENGES.slice();
+  scheduleSave(); renderChallengeEditor();
+});
 
 function addKid(name = '', emoji = '') {
   const usedThemes = state.kids.map(k => k.theme);
@@ -2000,6 +2645,9 @@ function addKid(name = '', emoji = '') {
     emoji: fallbackEmoji,
     theme,
     data: freshKidData(),
+    mustDoTasks: [],
+    pinSalt: null,
+    pinHash: null,
   });
   scheduleSave();
 }
@@ -2308,9 +2956,14 @@ function openPinSetup(kidId) {
   pinBuffer = '';
   pinFirstAttempt = null;
   const kid = kidById(kidId);
-  document.getElementById('pin-title').textContent = `🔒 Set PIN for ${kid.name}`;
-  document.getElementById('pin-subtitle').textContent = 'Choose a new 4-digit PIN';
-  document.getElementById('pin-clear-row').hidden = !kidHasPin(kid);
+  const isChange = kidHasPin(kid);
+  document.getElementById('pin-title').textContent = isChange
+    ? `🔑 Change PIN for ${kid.name}`
+    : `🔒 Set PIN for ${kid.name}`;
+  document.getElementById('pin-subtitle').textContent = isChange
+    ? `Enter a new 4-digit PIN to replace the current one`
+    : `Pick a 4-digit PIN ${kid.name} will use to sign in`;
+  document.getElementById('pin-clear-row').hidden = !isChange;
   clearPinError();
   updatePinDisplay();
   document.getElementById('pin-overlay').classList.add('open');
@@ -2407,6 +3060,114 @@ document.getElementById('pin-clear-btn').addEventListener('click', () => {
 });
 document.getElementById('pin-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('pin-overlay')) closePinModal();
+});
+
+// ═════════════════════════════════════════════════════════════════════════
+//  WEEKLY SUMMARY  —  "Money Owed" view
+// ═════════════════════════════════════════════════════════════════════════
+function openSummary() {
+  if (!isParentMode()) { showToast('🔒 Only the parent can view this'); return; }
+  renderSummary();
+  document.getElementById('summary-overlay').classList.add('open');
+}
+function closeSummary() {
+  document.getElementById('summary-overlay').classList.remove('open');
+  // Cards in the background may need their bars/balances refreshed
+  renderAll();
+}
+document.getElementById('open-summary-btn').addEventListener('click', openSummary);
+document.getElementById('summary-close').addEventListener('click', closeSummary);
+document.getElementById('summary-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('summary-overlay')) closeSummary();
+});
+
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }) +
+         ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderSummary() {
+  const unpaid = (state.earnings || []).filter(e => !e.paidAt).sort((a,b) => a.approvedAt - b.approvedAt);
+
+  // Per-kid totals
+  const totals = {};
+  unpaid.forEach(e => {
+    if (!totals[e.kidId]) totals[e.kidId] = { amount: 0, count: 0 };
+    totals[e.kidId].amount += e.reward;
+    totals[e.kidId].count += 1;
+  });
+
+  const family = unpaid.reduce((s, e) => s + e.reward, 0);
+  document.getElementById('summary-family-amount').textContent = fmt(family);
+
+  const totalsEl = document.getElementById('summary-totals');
+  if (!state.kids.length) {
+    totalsEl.innerHTML = '<div class="summary-empty">No kids yet.</div>';
+  } else {
+    totalsEl.innerHTML = state.kids.map(k => {
+      const t = totals[k.id] || { amount: 0, count: 0 };
+      return `
+        <div class="summary-kid-card">
+          <div style="font-size:1.6rem">${k.emoji}</div>
+          <div class="sk-name">${k.name}</div>
+          <div class="sk-amount">${fmt(t.amount)}</div>
+          <div class="sk-count">${t.count} item${t.count === 1 ? '' : 's'}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  const listEl = document.getElementById('summary-list');
+  if (!unpaid.length) {
+    listEl.innerHTML = '<div class="summary-empty">No unpaid earnings.<br>Approve a task or challenge to see it here.</div>';
+  } else {
+    listEl.innerHTML = unpaid.map(e => {
+      const kid = kidById(e.kidId);
+      return `
+        <div class="summary-entry">
+          <span>${kid ? kid.emoji : '❓'}</span>
+          <div>
+            <div class="se-kid">${kid ? kid.name : 'Unknown'} · ${e.icon} ${e.name}</div>
+            <div class="se-meta">${e.type === 'task' ? '📋 Task' : '🏅 Challenge'} · ${fmtDate(e.approvedAt)} · → ${e.cat}</div>
+          </div>
+          <div class="se-amt">+${fmt(e.reward)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.getElementById('summary-mark-paid').disabled = unpaid.length === 0;
+}
+
+document.getElementById('summary-mark-paid').addEventListener('click', () => {
+  const unpaid = (state.earnings || []).filter(e => !e.paidAt);
+  if (!unpaid.length) return;
+  const total = unpaid.reduce((s, e) => s + e.reward, 0);
+  if (!confirm(`Mark ${unpaid.length} item${unpaid.length === 1 ? '' : 's'} (${fmt(total)}) as paid?\n\nThis will credit each kid's bank balance and log the payouts. Do this after you've physically transferred the money.`)) return;
+  const now = Date.now();
+  const touchedKids = new Set();
+  unpaid.forEach(e => {
+    const kid = kidById(e.kidId);
+    if (kid && !e.preUpgrade) {
+      // Credit balance now
+      const cat = (e.cat && kid.data[e.cat] !== undefined) ? e.cat : 'spending';
+      kid.data[cat] = Math.round((kid.data[cat] + (e.reward || 0)) * 100) / 100;
+      kid.data.log.push({
+        desc: `💰 Paid: ${e.icon || ''} ${e.name}`.trim(),
+        amount: e.reward, cat, time: nowStr()
+      });
+      touchedKids.add(kid.id);
+    }
+    e.paidAt = now;
+    e.paidBy = userEmail;
+  });
+  scheduleSave();
+  renderSummary();
+  // Refresh affected kid cards (balance + bars)
+  touchedKids.forEach(kidId => updateCard(kidId));
+  updateGrandTotal();
+  showToast(`✅ Paid out ${fmt(total)} · balances updated`);
 });
 
 // ═════════════════════════════════════════════════════════════════════════
