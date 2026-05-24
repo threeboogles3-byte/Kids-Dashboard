@@ -28,8 +28,16 @@
          Developer contact:  your email
      • Save and Continue
      • Scopes step → Add or Remove Scopes → tick this one:
-         .../auth/drive.file   (Per-file access to files created/opened by app)
+         .../auth/drive   (See, edit, create, and delete all your Google Drive files)
        → Update → Save and Continue
+
+       Why this scope? Each family vault is one Drive file shared between family
+       members. The lighter "drive.file" scope only lets the app see files THIS
+       user created or explicitly opened with the app — so invited members can't
+       see the vault even after the host shares it. The broader "drive" scope is
+       the only way Google currently supports this sharing model from a web app.
+       (Verification requirements are heavier for production — for testing with
+       added Test Users you don't need anything else.)
      • Test users step → Add your own + family Gmail addresses (lets you
        test before Google verifies the app) → Save and Continue.
 
@@ -66,10 +74,13 @@
      • Until Google verifies your OAuth consent screen, the app caps at
        100 unique users and shows a "Google hasn't verified this app"
        warning. Users can still click "Advanced → Continue".
-     • To remove the cap & warning: APIs & Services → OAuth consent screen
-       → Publish App → Submit for verification. You'll need a privacy policy
-       URL and possibly a demo video. The drive.file scope is "non-sensitive"
-       so review is relatively lightweight. Takes a few days to a few weeks.
+     • The "drive" scope is in Google's RESTRICTED tier, which means
+       production verification requires a privacy policy URL, a YouTube demo
+       video showing how the scope is used, and possibly a CASA security
+       assessment if user count grows. This is the trade-off for letting
+       invited family members open shared vaults seamlessly.
+     • To submit: APIs & Services → OAuth consent screen → Publish App →
+       Submit for verification. Allow 2–6 weeks.
 
   ────────────────────────────────────────────────────────────────────────
   WHAT EACH CUSTOMER DOES — zero setup
@@ -630,22 +641,34 @@
     }
     .kid-task-section .add-task-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
 
-    /* Kid-row PIN button */
-    .kid-edit-row.with-pin { grid-template-columns: 50px 1fr 1fr 100px 36px; }
-    .kid-edit-row .pin-btn {
-      width: 100%; height: 36px; border-radius: 8px; border: none;
-      background: rgba(255,215,0,0.18); color: #FFD700; cursor: pointer;
-      font-size: 0.78rem; font-weight: 800; font-family: 'Nunito', sans-serif;
-      transition: all 0.18s;
-      padding: 0 4px;
+    /* Per-kid email field (below kid row) */
+    .kid-email-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 8px; padding: 8px 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
     }
-    .kid-edit-row .pin-btn:hover { background: rgba(255,215,0,0.35); transform: translateY(-1px); }
-    .kid-edit-row .pin-btn.set { background: rgba(74,222,128,0.2); color: #4ade80; }
-    .kid-edit-row .pin-btn.set:hover { background: rgba(74,222,128,0.35); }
-    @media (max-width: 460px) {
-      .kid-edit-row.with-pin { grid-template-columns: 50px 1fr 80px 36px; row-gap: 6px; }
-      .kid-edit-row.with-pin select[data-field="theme"] { grid-column: 1 / -1; }
+    .kid-email-row .ker-icon { font-size: 1rem; color: rgba(255,255,255,0.55); flex-shrink: 0; }
+    .kid-email-row .ker-label {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+      color: rgba(255,255,255,0.5); flex-shrink: 0; white-space: nowrap;
     }
+    .kid-email-row input {
+      flex: 1; padding: 7px 10px; border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.3);
+      color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; outline: none;
+      min-width: 0;
+    }
+    .kid-email-row input::placeholder { color: rgba(255,255,255,0.3); }
+    .kid-email-row input:focus { border-color: rgba(255,215,0,0.5); }
+    .kid-email-row .ker-link-btn {
+      flex-shrink: 0; padding: 6px 10px; border-radius: 8px; border: none;
+      background: rgba(16,185,129,0.18); color: #4ade80; cursor: pointer;
+      font-family: 'Nunito', sans-serif; font-size: 0.75rem; font-weight: 800;
+    }
+    .kid-email-row .ker-link-btn:hover { background: rgba(16,185,129,0.36); }
+    @media (max-width: 460px) { .kid-email-row { flex-wrap: wrap; } .kid-email-row input { flex: 1 1 100%; } }
 
     /* Read-only balance for kid view (hide controls) */
     .card.view-only .cat-tabs,
@@ -848,7 +871,7 @@
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-card">
     <h2>💰 Money Dashboard</h2>
-    <div class="auth-sub">Sign in to access your family's data</div>
+    <div class="auth-sub">Sign in with your own Google account</div>
     <div class="auth-error" id="auth-error"></div>
     <button class="auth-google" id="google-signin-btn" disabled>
       <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.8 1.1 7.9 3l5.7-5.7C34.5 6.1 29.5 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.4 0 10.3-2.1 14-5.4l-6.4-5.4c-2 1.4-4.5 2.2-7.5 2.2-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6.4 5.4c-.4.4 7.2-5.3 7.2-15.1 0-1.3-.1-2.4-.4-3.5z"/></svg>
@@ -892,48 +915,6 @@
     <div class="loading-spinner">
       <div class="ring"></div>
       <div id="loading-text" style="color:rgba(255,255,255,0.7);font-weight:700">Loading your family vault…</div>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════ Profile picker overlay ═════════════ -->
-<div class="auth-overlay" id="profile-overlay">
-  <div class="auth-card">
-    <h2>👋 Who's Using the App?</h2>
-    <div class="auth-sub">Pick your profile to continue</div>
-    <div class="profile-grid" id="profile-grid"></div>
-    <div style="text-align:center; margin-top:10px">
-      <button class="icon-btn" id="profile-signout-btn">Sign out of Google</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═════════════ PIN modal (enter or set) ═════════════ -->
-<div class="modal-overlay" id="pin-overlay">
-  <div class="modal" style="max-width:380px">
-    <h3 id="pin-title">🔒 Enter PIN</h3>
-    <div class="modal-subtitle" id="pin-subtitle">Enter your 4-digit PIN</div>
-    <div class="pin-error" id="pin-error"></div>
-    <div class="pin-display" id="pin-display">
-      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
-    </div>
-    <div class="pin-keypad">
-      <button class="pin-key" data-pin="1">1</button>
-      <button class="pin-key" data-pin="2">2</button>
-      <button class="pin-key" data-pin="3">3</button>
-      <button class="pin-key" data-pin="4">4</button>
-      <button class="pin-key" data-pin="5">5</button>
-      <button class="pin-key" data-pin="6">6</button>
-      <button class="pin-key" data-pin="7">7</button>
-      <button class="pin-key" data-pin="8">8</button>
-      <button class="pin-key" data-pin="9">9</button>
-      <button class="pin-key action" id="pin-cancel">Cancel</button>
-      <button class="pin-key" data-pin="0">0</button>
-      <button class="pin-key action" id="pin-back">⌫</button>
-    </div>
-    <div style="text-align:center; margin-top:14px; padding-top:14px; border-top:1px dashed rgba(255,255,255,0.1)" id="pin-clear-row" hidden>
-      <div style="font-size:0.78rem; color:rgba(255,255,255,0.5); margin-bottom:6px; font-weight:700">Don't want a PIN anymore?</div>
-      <button class="icon-btn" id="pin-clear-btn" style="color:#f87171; border-color:rgba(239,68,68,0.3)">🗑 Remove PIN entirely</button>
     </div>
   </div>
 </div>
@@ -996,10 +977,9 @@
 
     <div class="settings-pane active" id="pane-kids">
       <div style="color:rgba(255,255,255,0.6);font-size:0.85rem;font-weight:600;line-height:1.5;margin-bottom:14px">
-        <strong style="color:#FFD700">🔑 PINs:</strong> Each child can have their own 4-digit PIN that locks their dashboard view. Tap
-        <span style="color:#FFD700">🔒 Set PIN</span> to create one, or
-        <span style="color:#4ade80">🔑 Change PIN</span> to replace an existing one (with an option to remove it).
-        Parents don't need a PIN — your Google login is enough.
+        <strong style="color:#FFD700">✉ Sign-in email:</strong> Set each kid's own Google account email below.
+        When they sign in with that email, the app will know they're that kid and show only their own data.
+        After you set the email, click <span style="color:#4ade80">Share</span> to send them an invite so their Google account can open the family vault.
       </div>
       <div id="kid-editor-list"></div>
       <button class="add-kid-btn" id="add-kid-btn">＋ Add a Kid</button>
@@ -1037,15 +1017,20 @@
 
     <div class="settings-pane" id="pane-family">
       <div style="color:rgba(255,255,255,0.6);font-size:0.88rem;font-weight:600;line-height:1.5;margin-bottom:14px">
-        Anyone listed here can sign in with their Google account and see this dashboard.
+        Anyone listed here can sign in with their Google account to see this dashboard.
+        <br>The app figures out who they are from the email:
+        <br>• Email matches a kid's email (see Kids tab) → that kid (sees only their own card, can claim tasks/challenges)
+        <br>• Any other invited email → Parent (full access)
       </div>
       <div id="member-list"></div>
       <div id="invite-section" style="display:none">
+        <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px">Add a co-parent</div>
         <div class="invite-row">
-          <input type="email" id="invite-email" placeholder="family@gmail.com" />
+          <input type="email" id="invite-email" placeholder="parent2@gmail.com" />
           <button id="invite-btn">Invite</button>
         </div>
         <div style="color:rgba(255,255,255,0.45);font-size:0.78rem;margin-top:8px;font-weight:600">
+          Tip: to invite a kid, use the <strong>Share</strong> button on their row in the <strong>Kids</strong> tab.
           Only the host can invite or remove family members.
         </div>
       </div>
@@ -1104,7 +1089,6 @@
       <div class="right">
         <span class="who-pill" id="who-pill"></span>
         <button class="icon-btn" id="open-summary-btn">💰 Owed</button>
-        <button class="icon-btn" id="switch-user-btn">🔁 Switch User</button>
         <button class="icon-btn" id="open-settings">⚙ Settings</button>
         <button class="icon-btn" id="signout-btn">Sign out</button>
       </div>
@@ -1175,7 +1159,12 @@
 //  CONFIG  —  paste your OAuth Client ID here  (see comment block at top)
 // ═════════════════════════════════════════════════════════════════════════
 const CLIENT_ID = "868415439641-csdmtquldrk1a0tfkt5fq79dkc4iug1v.apps.googleusercontent.com";
-const SCOPES = "openid email profile https://www.googleapis.com/auth/drive.file";
+// IMPORTANT: must use the broad `drive` scope, not `drive.file`. With `drive.file`,
+// invited family members literally can't see the vault file — Google's API hides
+// files that weren't created or explicitly opened by THIS user with THIS app, even
+// if they've been shared with them. The broader `drive` scope is what makes
+// "host shares vault → invited member opens it" work cleanly.
+const SCOPES = "openid email profile https://www.googleapis.com/auth/drive";
 const VAULT_FILENAME = "family-money-dashboard.json";
 const VAULT_APP_TAG = "kids-money-dashboard"; // stored on the file's appProperties
 const POLL_INTERVAL_MS = 25000;
@@ -1420,6 +1409,7 @@ function healState(data) {
   data.kids.forEach(k => {
     if (!k.data) k.data = freshKidData();
     if (!k.mustDoTasks) k.mustDoTasks = [];
+    if (typeof k.email !== 'string') k.email = '';
     if (k.pinSalt === undefined) k.pinSalt = null;
     if (k.pinHash === undefined) k.pinHash = null;
     k.mustDoTasks.forEach(t => { if (typeof t.reward !== 'number') t.reward = 0; });
@@ -1467,8 +1457,10 @@ async function drivePollChanges() {
       // Remote changed — reload
       await driveLoadVault(vaultFileId);
       applyDailyReset();
-      // If the kid we were viewing was deleted by the parent on another device, kick to picker
-      if (isKidMode() && !kidById(currentKidId())) { currentRole = null; showProfilePicker(); return; }
+      // Re-determine role from email in case host changed the email mapping
+      determineRoleFromEmail();
+      // If our kid id no longer exists (deleted by parent on another device), sign out
+      if (isKidMode() && !kidById(currentKidId())) { signOutAll(); return; }
       renderAll();
       showToast('🔄 Updated from another device');
     }
@@ -1516,8 +1508,10 @@ function signOutAll() {
   vaultFileId = null;
   vaultOwnerEmail = null;
   lastModifiedTime = null;
+  currentRole = null;
   state = defaultState();
   if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
   showAuth();
 }
 
@@ -2238,21 +2232,18 @@ function updateWhoPill() {
 }
 
 function updateRoleBasedUi() {
-  // Hide parent-only chrome from kids
+  // Hide parent-only chrome from kids; kids always see Sign out
   const settingsBtn = document.getElementById('open-settings');
   const signoutBtn  = document.getElementById('signout-btn');
-  const switchBtn   = document.getElementById('switch-user-btn');
   const summaryBtn  = document.getElementById('open-summary-btn');
   if (isKidMode()) {
     if (settingsBtn) settingsBtn.style.display = 'none';
-    if (signoutBtn)  signoutBtn.style.display = 'none';
     if (summaryBtn)  summaryBtn.style.display = 'none';
-    if (switchBtn)   switchBtn.style.display = '';
+    if (signoutBtn)  signoutBtn.style.display = '';
   } else {
     if (settingsBtn) settingsBtn.style.display = '';
-    if (signoutBtn)  signoutBtn.style.display = '';
     if (summaryBtn)  summaryBtn.style.display = '';
-    if (switchBtn)   switchBtn.style.display = '';
+    if (signoutBtn)  signoutBtn.style.display = '';
   }
 }
 
@@ -2453,14 +2444,21 @@ function renderKidEditor() {
   }
   list.innerHTML = state.kids.map(k => `
     <div class="kid-edit-block" data-id="${k.id}">
-      <div class="kid-edit-row with-pin">
+      <div class="kid-edit-row">
         <button class="emoji-pick-btn small" data-field="emoji" title="Pick avatar">${k.emoji}</button>
         <input data-field="name" value="${(k.name || '').replace(/"/g, '&quot;')}" placeholder="Name" />
         <select data-field="theme">
           ${THEMES.map(t => `<option value="${t}" ${t===k.theme?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
         </select>
-        <button class="pin-btn ${kidHasPin(k) ? 'set' : ''}" data-action="pin" title="${kidHasPin(k) ? 'Change or remove the PIN' : 'Set a 4-digit PIN'}">${kidHasPin(k) ? '🔑 Change PIN' : '🔒 Set PIN'}</button>
         <button class="del-btn" data-action="del-kid" title="Remove">🗑</button>
+      </div>
+      <div class="kid-email-row">
+        <span class="ker-icon">✉</span>
+        <span class="ker-label">Google email</span>
+        <input type="email" data-field="email" autocomplete="off" inputmode="email"
+               value="${(k.email || '').replace(/"/g, '&quot;')}"
+               placeholder="${k.name || 'kid'}@gmail.com" />
+        <button class="ker-link-btn" data-action="share-kid" title="Send this kid a Drive invite">Share</button>
       </div>
       ${kidTasksHtml(k)}
     </div>
@@ -2468,7 +2466,7 @@ function renderKidEditor() {
 
   list.querySelectorAll('.kid-edit-block').forEach(block => {
     const id = block.dataset.id;
-    // Kid row inputs
+    // Kid row inputs (name, theme)
     const row = block.querySelector('.kid-edit-row');
     row.querySelectorAll('input, select').forEach(inp => {
       inp.addEventListener('input', () => {
@@ -2486,9 +2484,31 @@ function renderKidEditor() {
         scheduleSave(); renderKidEditor();
       });
     });
-    // PIN
-    const pinBtn = row.querySelector('[data-action="pin"]');
-    if (pinBtn) pinBtn.addEventListener('click', () => openPinSetup(id));
+    // Email input — save on input, lowercase + trim
+    const emailRow = block.querySelector('.kid-email-row');
+    const emailInput = emailRow.querySelector('input[data-field="email"]');
+    emailInput.addEventListener('input', () => {
+      const kid = kidById(id); if (!kid) return;
+      kid.email = emailInput.value.trim().toLowerCase();
+      scheduleSave();
+    });
+    // Share button — invite this kid's email via Drive permissions
+    const shareBtn = emailRow.querySelector('[data-action="share-kid"]');
+    shareBtn.addEventListener('click', async () => {
+      const kid = kidById(id); if (!kid) return;
+      const email = (kid.email || '').trim().toLowerCase();
+      if (!email || !email.includes('@')) { showToast('⚠️ Set a valid email first'); emailInput.focus(); return; }
+      shareBtn.disabled = true; shareBtn.textContent = '…';
+      try {
+        await driveInviteMember(email);
+        showToast(`✉️ Invite sent to ${email}`);
+      } catch (e) {
+        console.error(e);
+        showToast('⚠️ Invite failed — check the email');
+      } finally {
+        shareBtn.disabled = false; shareBtn.textContent = 'Share';
+      }
+    });
     // Delete kid
     const delKidBtn = row.querySelector('[data-action="del-kid"]');
     if (delKidBtn) delKidBtn.addEventListener('click', () => {
@@ -2644,10 +2664,11 @@ function addKid(name = '', emoji = '') {
     name: name || `Kid ${state.kids.length + 1}`,
     emoji: fallbackEmoji,
     theme,
+    email: '',
     data: freshKidData(),
     mustDoTasks: [],
-    pinSalt: null,
-    pinHash: null,
+    pinSalt: null,   // deprecated, kept for back-compat with older vault files
+    pinHash: null,   // deprecated
   });
   scheduleSave();
 }
@@ -2678,10 +2699,17 @@ async function renderMembers() {
     list.innerHTML = perms.map(p => {
       const isOwner = p.role === 'owner';
       const canRemove = isHost() && !isOwner;
+      const email = (p.emailAddress || '').toLowerCase();
+      // Determine display role: owner → Host, kid email match → that kid's name, else → Parent
+      const matchedKid = state.kids.find(k => (k.email || '').toLowerCase() === email);
+      let label, cls;
+      if (isOwner) { label = '👑 Host (Parent)'; cls = 'host'; }
+      else if (matchedKid) { label = `${matchedKid.emoji} ${matchedKid.name}`; cls = 'member'; }
+      else { label = '👨‍👩‍👧 Parent'; cls = 'host'; }
       return `
         <div class="member-row">
           <div class="member-email">${p.emailAddress || 'Unknown'}</div>
-          <span class="member-role ${isOwner ? 'host' : 'member'}">${isOwner ? 'Host' : 'Member'}</span>
+          <span class="member-role ${cls}">${label}</span>
           ${canRemove ? `<button class="del-btn" data-pid="${p.id}" title="Remove">🗑</button>` : ''}
         </div>
       `;
@@ -2779,7 +2807,7 @@ document.getElementById('reset-data-btn').addEventListener('click', () => {
 //  AUTH UI  —  overlays
 // ═════════════════════════════════════════════════════════════════════════
 function _hideAllOverlays() {
-  ['auth-overlay','vault-overlay','loading-overlay','profile-overlay']
+  ['auth-overlay','vault-overlay','loading-overlay']
     .forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('open'); });
   document.getElementById('app-root').classList.remove('ready');
 }
@@ -2789,11 +2817,6 @@ function showLoading(text) {
   _hideAllOverlays();
   document.getElementById('loading-text').textContent = text || 'Loading…';
   document.getElementById('loading-overlay').classList.add('open');
-}
-function showProfilePicker() {
-  _hideAllOverlays();
-  renderProfilePicker();
-  document.getElementById('profile-overlay').classList.add('open');
 }
 function showApp() {
   _hideAllOverlays();
@@ -2816,8 +2839,10 @@ document.getElementById('refresh-btn').addEventListener('click', async () => {
   try {
     await driveLoadVault(vaultFileId);
     applyDailyReset();
-    if (isKidMode() && !kidById(currentKidId())) { currentRole = null; showProfilePicker(); }
-    else renderAll();
+    // Re-determine role after refresh in case parent updated this kid's email
+    determineRoleFromEmail();
+    if (isKidMode() && !kidById(currentKidId())) { signOutAll(); return; }
+    renderAll();
     setStatus('synced');
     showToast('🔄 Refreshed');
   } catch (e) { console.error(e); setStatus('error', 'Refresh failed'); }
@@ -2841,7 +2866,11 @@ document.getElementById('vault-refresh-btn').addEventListener('click', async () 
     const f = await driveFindVault();
     if (!f) {
       showVault();
-      showVaultError("Still no vault found. Ask your family host to send the invite to " + userEmail + ", then try again.");
+      showVaultError(
+        `Still no vault found for ${userEmail}. ` +
+        `Make sure your family host added this exact email in Settings → Family → Invite, ` +
+        `then click "I was invited" again. (Sometimes Google takes a minute to deliver the share.)`
+      );
       return;
     }
     await driveLoadVault(f.id);
@@ -2881,186 +2910,19 @@ function onVaultReady() {
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden) drivePollChanges();
   });
-  // Force the profile picker — every visit, every device
-  currentRole = null;
-  showProfilePicker();
-}
-
-// ═════════════════════════════════════════════════════════════════════════
-//  PROFILE PICKER  —  choose Parent or Kid after Google sign-in
-// ═════════════════════════════════════════════════════════════════════════
-function renderProfilePicker() {
-  const grid = document.getElementById('profile-grid');
-  let html = `
-    <button class="profile-btn parent" data-pick="parent">
-      <span class="pp-emoji">👨‍👩‍👧</span>Parent
-      <div class="pp-lock">${isHost() ? 'HOST' : 'GOOGLE-SIGNED-IN'}</div>
-    </button>
-  `;
-  html += state.kids.map(k => `
-    <button class="profile-btn" data-pick="kid" data-kid-id="${k.id}">
-      <span class="pp-emoji">${k.emoji}</span>${k.name}
-      <div class="pp-lock">${kidHasPin(k) ? '🔒 PIN' : 'NO PIN'}</div>
-    </button>
-  `).join('');
-  grid.innerHTML = html;
-  grid.querySelectorAll('.profile-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      const pick = b.dataset.pick;
-      if (pick === 'parent') {
-        currentRole = { kind: 'parent' };
-        enterApp();
-      } else {
-        const kidId = b.dataset.kidId;
-        const kid = kidById(kidId);
-        if (!kid) return;
-        if (kidHasPin(kid)) openPinEntry(kidId);
-        else { currentRole = { kind: 'kid', id: kidId }; enterApp(); }
-      }
-    });
-  });
-}
-
-function enterApp() {
-  applyDailyReset();
+  // Determine role from the signed-in Google email — no profile picker, no PIN
+  determineRoleFromEmail();
   renderAll();
   showApp();
 }
 
-document.getElementById('profile-signout-btn').addEventListener('click', () => signOutAll());
-document.getElementById('switch-user-btn').addEventListener('click', () => {
-  currentRole = null;
-  showProfilePicker();
-});
-
-// ═════════════════════════════════════════════════════════════════════════
-//  PIN MODAL  —  used for both kid entry and parent setup
-// ═════════════════════════════════════════════════════════════════════════
-function openPinEntry(kidId) {
-  pinMode = 'enter';
-  pinTargetKidId = kidId;
-  pinBuffer = '';
-  pinFirstAttempt = null;
-  const kid = kidById(kidId);
-  document.getElementById('pin-title').textContent = `🔒 ${kid.name}'s PIN`;
-  document.getElementById('pin-subtitle').textContent = 'Enter your 4-digit PIN';
-  document.getElementById('pin-clear-row').hidden = true;
-  clearPinError();
-  updatePinDisplay();
-  document.getElementById('pin-overlay').classList.add('open');
+// Map the signed-in user's email to either a kid (if it matches kid.email)
+// or the parent role (anyone else with vault access).
+function determineRoleFromEmail() {
+  const me = (userEmail || '').trim().toLowerCase();
+  const matched = state.kids.find(k => (k.email || '').trim().toLowerCase() === me);
+  currentRole = matched ? { kind: 'kid', id: matched.id } : { kind: 'parent' };
 }
-
-function openPinSetup(kidId) {
-  pinMode = 'set-new';
-  pinTargetKidId = kidId;
-  pinBuffer = '';
-  pinFirstAttempt = null;
-  const kid = kidById(kidId);
-  const isChange = kidHasPin(kid);
-  document.getElementById('pin-title').textContent = isChange
-    ? `🔑 Change PIN for ${kid.name}`
-    : `🔒 Set PIN for ${kid.name}`;
-  document.getElementById('pin-subtitle').textContent = isChange
-    ? `Enter a new 4-digit PIN to replace the current one`
-    : `Pick a 4-digit PIN ${kid.name} will use to sign in`;
-  document.getElementById('pin-clear-row').hidden = !isChange;
-  clearPinError();
-  updatePinDisplay();
-  document.getElementById('pin-overlay').classList.add('open');
-}
-
-function closePinModal() {
-  document.getElementById('pin-overlay').classList.remove('open');
-  pinMode = null; pinBuffer = ''; pinTargetKidId = null; pinFirstAttempt = null;
-}
-
-function updatePinDisplay() {
-  const dots = document.getElementById('pin-display').children;
-  for (let i = 0; i < 4; i++) {
-    dots[i].textContent = i < pinBuffer.length ? '•' : '';
-    dots[i].classList.toggle('filled', i < pinBuffer.length);
-  }
-}
-
-function showPinError(msg) {
-  const e = document.getElementById('pin-error');
-  e.textContent = msg; e.classList.add('show');
-}
-function clearPinError() { document.getElementById('pin-error').classList.remove('show'); }
-
-async function submitPin() {
-  const kid = kidById(pinTargetKidId);
-  if (!kid) { closePinModal(); return; }
-
-  if (pinMode === 'enter') {
-    const ok = await verifyPin(kid, pinBuffer);
-    if (!ok) {
-      showPinError('❌ Wrong PIN');
-      pinBuffer = ''; updatePinDisplay();
-      return;
-    }
-    currentRole = { kind: 'kid', id: kid.id };
-    closePinModal();
-    enterApp();
-    return;
-  }
-
-  if (pinMode === 'set-new') {
-    pinFirstAttempt = pinBuffer;
-    pinBuffer = '';
-    pinMode = 'set-confirm';
-    document.getElementById('pin-subtitle').textContent = 'Confirm: enter the same PIN again';
-    clearPinError();
-    updatePinDisplay();
-    return;
-  }
-
-  if (pinMode === 'set-confirm') {
-    if (pinBuffer !== pinFirstAttempt) {
-      showPinError("PINs didn't match — try again");
-      pinMode = 'set-new'; pinBuffer = ''; pinFirstAttempt = null;
-      document.getElementById('pin-subtitle').textContent = 'Choose a new 4-digit PIN';
-      updatePinDisplay();
-      return;
-    }
-    await setKidPin(kid, pinBuffer);
-    scheduleSave();
-    showToast(`🔒 PIN set for ${kid.name}`);
-    closePinModal();
-    renderKidEditor();
-    return;
-  }
-}
-
-// Wire keypad
-document.querySelectorAll('.pin-key[data-pin]').forEach(b => {
-  b.addEventListener('click', () => {
-    if (pinBuffer.length >= 4) return;
-    clearPinError();
-    pinBuffer += b.dataset.pin;
-    updatePinDisplay();
-    if (pinBuffer.length === 4) setTimeout(submitPin, 120);
-  });
-});
-document.getElementById('pin-back').addEventListener('click', () => {
-  pinBuffer = pinBuffer.slice(0, -1);
-  clearPinError();
-  updatePinDisplay();
-});
-document.getElementById('pin-cancel').addEventListener('click', closePinModal);
-document.getElementById('pin-clear-btn').addEventListener('click', () => {
-  const kid = kidById(pinTargetKidId);
-  if (!kid) return;
-  if (!confirm(`Remove PIN for ${kid.name}? They'll be able to open their dashboard without one.`)) return;
-  clearKidPin(kid);
-  scheduleSave();
-  showToast(`🔓 PIN removed for ${kid.name}`);
-  closePinModal();
-  renderKidEditor();
-});
-document.getElementById('pin-overlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('pin-overlay')) closePinModal();
-});
 
 // ═════════════════════════════════════════════════════════════════════════
 //  WEEKLY SUMMARY  —  "Money Owed" view
